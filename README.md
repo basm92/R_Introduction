@@ -57,6 +57,8 @@ The objectives of this course are:
 
 - Lecture 3b: Integrating everything in a document or presentation: __xtable__, __kable__, __kableExtra__, RMarkdown, TeX
 
+- Lecture 4: Finalizing & Contrasting R approaches to Excel approaches
+
 ## Reading
 
 None! At the beginning of each session, you can follow along by downloading the RMarkdown files which I have created for each session. This way, you can (i) reproduce everything I do, and (ii) add spontaneous pieces of code to explore variations. Additionally, it will (hopefully) spontaneously teach you some of the syntax of Markdown and/or LaTeX, and encourage you to use those to make your own workflow as efficient as possible. 
