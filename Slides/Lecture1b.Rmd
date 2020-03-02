@@ -5,6 +5,10 @@ date: "3/2/2020"
 output: html_document
 ---
 
+```{r setup, include = FALSE, warning = FALSE}
+library(plyr)
+```
+
 # Introduction
 
 In this lecture, we will occupy ourselves with (i) importing data from a variety of sources, and (ii) tidying the data to make sure the data is 'tidy', that is to say, in a format suitable for statistical and graphical analysis. While importing and tidying data, we will come across various challenges, which I attempt to address. 
@@ -91,6 +95,124 @@ In order for your data to be ready for analysis, it needs to be **tidy**.
 
 > data sets that are arranged such that each variable is a column and each observation (or case) is a row.
 
-I will attempt to explain how to put this principle in practice using a set of packages called the **tidyverse**, but strictly speaking, only the `tidyr` package is required. 
+I will attempt to explain how to put this principle in practice using a set of packages called the **tidyverse**, but strictly speaking, only the `dplyr` and the `tidyr` packages are required. 
+
+### Dplyr
+
+From the [Dplyr vignette](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html):
+
+> When working with data you must:
+
+    - Figure out what you want to do.
+    - Describe those tasks in the form of a computer program.
+    - Execute the program.
+
+> The dplyr package makes these steps fast and easy:
+
+    - By constraining your options, it helps you think about your data manipulation challenges.
+    - It provides simple “verbs”, functions that correspond to the most common data manipulation tasks, to help you translate your thoughts into code.
+    - It uses efficient backends, so you spend less time waiting for the computer.
+
+In particular, we will use the functions **filter** and **select** to easily find the appropriate columns and rows on which we want to execute a certain data operation, and we will use arrange to put data in the right order (similar to sort in Excel), and **summarise** and **cut** in conjunction with **group_by** to make statistics per (combination of group(s)). 
+
+Let's install and load `dplyr`. 
+
+```{r eval = FALSE}
+install.packages(dplyr)
+```
+
+```{r, warning = FALSE, message = FALSE}
+library(dplyr)
+```
+
+#### Select and filter the data
+
+Let's take a standard dataset from `dplyr`, about characteristics of Star Wars characters. 
+
+```{r}
+data <- starwars
+```
+
+We already know that we can use base R to select certain rows and columns:
+
+```{r}
+head(starwars[,c(1,2,3)])
+
+starwars[1:5,1:5]
+```
+
+`Dplyr` features several built-in functions to do the same. This is useful, because we can use pipeing to filter observations and columns in various steps in the process. Consider this, for example:
+
+```{r}
+data %>%
+  mutate(gender = as.factor(gender))  %>%
+  filter(!is.na(gender)) %>%
+  group_by(gender) %>%
+  summarise(meanheight = mean(height, 
+                              na.rm = TRUE))
+```
+
+In words, I do the following:
+
+I take the dataset data, then I introduce a new variable, gender, by which I replace the old variable gender, but now convert it to a factor. I then make sure to exclude all rows (observations) in which gender is equal to `r NA`, and then group_by gender, after which I ask a summary (per subgroup of gender) of the mean, and ask to remove any NA observations in height. 
+
+I make use of the __filter__ function by excluding the NA observations. I use the function `is.na` to determine whether a particular observation is an NA, and then chose to retain it if it is NOT an NA, which in R syntax involves putting an exclamation mark before the command (analogous to a negation in logic). 
+
+#### Cut a numeric variable in various categories
+
+Let's take the dataset `mtcars` for this exercise, a standard R dataset which contains data about several cars. 
+
+```{r}
+mydata <- mtcars
+```
+
+Let's first have a look what the data look like:
+
+```{r}
+head(mydata)
+```
+
+Suppose now we want to compare one variable, `disp`, as a function of five quintiles of `mpg`. We can use the combination of **cut** and **group_by** commands to achieve this:
+
+```{r warning = FALSE}
+mydata %>%
+  mutate(catmpg = cut(mpg, 5)) %>%
+  group_by(catmpg) %>%
+  summarise(mean = mean(disp), sd = sd(disp), n = n())
+```
+
+In words, what we have done is the following: we have taken the dataset mydata, then we've added a variable `catmpg`, which defined for each observation to which value of mpg it belonged to. Then, we have grouped the dataset by this same variable, and summarised per group. 
+
+`cut` generates a factor variable. As you might remember from the previous lecture, factors have labels. Let's have a look at the labels from the variable that we've just constructed. 
+```{r}
+a <- (cut(mydata$mpg, 5))
+
+levels(a)
+```
+
+We might want to rename the factors, for example, because we want our descriptive statistics tables to show qualitative names, and not the actual ranges of the variable. We can do this using the **plyr** package, a predecessor of the dplyr package. It is dangerous to load plyr after dplyr, as pointed out in the message when loading plyr:
+
+```{r}
+library(plyr); library(dplyr)
+```
+
+You can use either **revalue** or **mapvalues** in the following way: 
+
+```{r}
+revalue(a, c("(10.4,15.1]"="Lowest", "(29.2,33.9]"="Highest"))
+
+mapvalues(a, 
+          from = levels(a), 
+          to = c("Lowest", "Second Lowest", "Medium", "Second Highest", "Highest"))
+```
+
+**Exercise**: Try to augment the dataset `mydata` with this new categorical variable! 
+
+We have managed to create five categories along the entire range of mpg. Alternatively, you could have explicitly specified the bounds of each category. Also, in the `Hmisc` package, you can also find the function **cut2**, in which you can define the categories 'endogenously', that is to say, you can enter a minimum amount of observations per category, and an amount of categories you desire to let the function decide which should be the bounds of the categorical variable. 
+
+
+### Tidyr
+
+Tidyr with `pivot_longer` and `pivot_wider`. 
 
 
