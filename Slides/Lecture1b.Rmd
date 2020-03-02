@@ -1,0 +1,96 @@
+---
+title: 'Lecture 1b: Importing and Tidying Data'
+author: "Bas Machielsen"
+date: "3/2/2020"
+output: html_document
+---
+
+# Introduction
+
+In this lecture, we will occupy ourselves with (i) importing data from a variety of sources, and (ii) tidying the data to make sure the data is 'tidy', that is to say, in a format suitable for statistical and graphical analysis. While importing and tidying data, we will come across various challenges, which I attempt to address. 
+
+- You can download the .Rmd file from my [**github page**](www.github.com/basm92/R_Introduction), and follow along!
+
+# Part 1: Importing data - basics
+
+We will start by attempt to import various files that you are used to opening in MS Excel. In R, there is a package, `readxl`, that is specifically optimized to deal with these kinds of files. As you might have noticed, on my Github page, I made a special folder containing several datasets which I use for demonstrative purposes, some of which we will attempt to download and use during this presentation. 
+
+First, let us install the `readxl` package.
+
+```{r eval = FALSE}
+install.packages('readxl')
+```
+
+And don't forget to 'turn it on':
+
+```{r}
+library(readxl)
+```
+
+There is a file in https://github.com/basm92/R_Introduction/tree/master/DataFiles called `wb.csv`. If you want, you can download it manually going to the aforementioned github page, click on 'Raw', then right click, then 'Save page as'. However, you might want to be concerned with reproducibility, and if you download something from the internet, it is always good to do this in a reproducible way, for example, by indicating how and when you've downloaded the file. Therefore, let's try to read it from the web! 
+
+This is the URL linking to the file:
+```{r}
+url <- "https://raw.githubusercontent.com/basm92/R_Introduction/master/DataFiles/wb.csv"
+```
+
+and we can read it using the `read.csv` command:
+
+```{r}
+mydata <- read.csv(url)
+
+head(mydata, 10)
+```
+
+In an appendix to our paper, we might want to indicate when we've downloaded something, for example, by including the following chunk:
+
+I've downloaded the data from `r url` on `r Sys.Date()`. 
+
+Alternatively, I might want to download the file to my local system, in which case I can use the `download.file` command:
+
+```{r}
+download.file(url, destfile = "wb.csv")
+```
+
+..which will download the data directly to my working directory. Then, I proceed to read it in R using `read.csv` in exactly the same way:
+
+```{r}
+mydata <- read.csv("wb.csv") 
+```
+
+__A little reminder about the syntax: this time, I use "" in read.csv because it is a direct argument, whereas I used read.csv(url) without quotation marks because url is a pointer towards a url, which in turn contains the string towards the real url.__
+
+These data need a lot of cleaning, but let us first inspect the data a little bit more carefully..:
+
+```{r}
+str(mydata)
+
+tail(mydata, 10)
+```
+
+The last couple of lines contain metadata, so we might want to erase them. How do we do that? We can use R's base syntax again, by selecting the number of rows 1 to 1100. Alternatively, we can also use a negative sign to indicate we select everything BUT rows 1101:1105:
+
+```{r}
+mydata <- mydata[-(1101:1105),]
+```
+
+# Importing data - .xlsx and .xls
+
+# Importing data - JSON
+
+# Importing data - SQL
+
+# Importing data - anything else
+
+
+## What is tidy data?
+
+In order for your data to be ready for analysis, it needs to be **tidy**. 
+
+- Tidy data is defined as: 
+
+> data sets that are arranged such that each variable is a column and each observation (or case) is a row.
+
+I will attempt to explain how to put this principle in practice using a set of packages called the **tidyverse**, but strictly speaking, only the `tidyr` package is required. 
+
+
