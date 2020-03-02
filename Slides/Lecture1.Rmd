@@ -1,5 +1,5 @@
 ---
-title: "Lecture 1a"
+title: "Lecture 1a: Installing, R Fundamentals"
 author: "Bas Machielsen"
 date: "3/2/2020"
 output: html_document
@@ -7,32 +7,337 @@ output: html_document
 
 ## Introduction
 
-This lecture covers three aspects: installing R and Rstudio, familiarizing ourselves with basic R syntax, learn about functions, objects, and object classes. 
+This lecture covers three aspects: installing R and Rstudio, familiarizing ourselves with basic R syntax, learn about objects, object classes and functions. 
 
 ## Installing R and Rstudio
-
-### Windows
 
 - Download the most recent version of R from https://cran.rstudio.com/ 
 
 - Go to https://rstudio.com/products/rstudio/download/#download 
 
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/lecture1_1.png)
+
+### Windows 
 - Select the appropriate installer (for Windows: .exe)
 
-![]
+- Follow the setup wizard: the default options are fine. Make sure to select ' 64-bit Files', 'Message translations' and 'Core Files', under components. 
+
+- Don't specify the startup options but accept the default. 
+
+- Determine whether you want shortcuts on your desktop, wait until the wizard has finished and start Rstudio. 
 
 ### Mac
 
-### UNIX
+- Download and install the most recent version of R from https://cran.rstudio.com/ (This should be straightforward)
+
+- Go to https://rstudio.com/products/rstudio/download/#download 
+
+- Select the appropriate installer (for Mac: .dmg)
+
+- Double-click it to open, and then drag and drop it to your applications folder.
+
+### UNIX/Linux
+
+- Download and install the most recent version of R from https://cran.rstudio.com/ (This should be straightforward)
+
+- Go to https://rstudio.com/products/rstudio/download/#download 
+
+- Select the appropriate installer (for Ubuntu/Debian: .deb), and an install wizard will guide you through the rest of the process. 
+
+## Getting started: specifying a working directory and installing our first packages
+
+### Setting our working directory
+
+Once you've opened Rstudio, the standard layout will look something like this: 
+
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/lecture1_2.png)
+Let's first open our `.Rmd` file that we've just downloaded from my [Github page](http://www.github.com/basm92/R_Introduction). We go to File > Open File, and we select the markdown document `Lecture1.Rmd` which we've just downloaded. 
+
+We will start by specifying our working directory. Our working directory determines from which file path we will create, or load our files by default. It is important to specify your working directory not on a web-server (such as one starting with `SOLIS`) but on a hard-drive. The UU interface sometimes frustrates writing and saving files from R to a server-environment. You can see your default working directory by the following command:
+
+```{r}
+getwd()
+```
+
+Put your mouse cursor in the above chunk, and press CTRL+Enter, or alternatively, type `r getwd()` in the console, and press enter. 
+
+Now, let's set our working directory. You set your working directory by using the `setwd()` command, specifying a directory between brackets, and using quotation marks: `r "exampledirectory/bas"`. Setting your working directory depends on your operating system: In Windows, you specify your working directory using: 
+
+```{r eval = FALSE}
+setwd("C:/Documents/My/Working/Directory")
+```
+
+On a Mac: you specify the directory starting from the root directory with a `/`:
+
+```{r eval = FALSE}
+setwd("/Users/user/Documents/MyWorkingDirectory")
+```
+
+On a UNIX system: 
+
+```{r eval = FALSE}
+setwd("/home/user/Documents/MyWorkingDirectory")
+```
+
+You can also use the GUI of Rstudio to change your working directory: Session > Set Working Directory > Choose Location. I advice against using this option because I think it harms reproducibility. 
+
+### Changing the default look of Rstudio
+
+In order to make this a little bit less boring, let us pick a nice custom look of Rstudio first (this will also make you look like an experienced programmer):
+
+Let's go to Tools > Global Options > Appearance, pick a nice Editor theme and/or font, and click apply!
+
+### Installing our first packages
+
+Let us now attempt to install our first packages. Packages contain functions that help us in doing what we want to do in an efficient way. Not using packages comes down to attempting to reinvent the wheel: we would have to do everything using base R syntax, whereas some other people have already used base R syntax to write very complicated functions, of which we can make use! 
+
+Let's install the __tidyverse__! In fact, tidyverse is not so much a package as it is a **set** of packages facilitating data treatment. Try and run the following code chunk:
+
+```{r}
+install.packages('tidyverse')
+```
+
+After we've installed our package, which just means that R put the appropriate files in the appropriate folder on your computer, we have to load it before we can use its functions. Loading a package is done as follows:
+
+```{r}
+library(tidyverse)
+```
+
+And it will give you some output akin to the following picture:
+
+![](picture3)
+
+This is an overview of the attached packages in the tidyverse, followed by an overview of **Conflicts**. Conflicts happen when two packages use the same functions. R studio automatically loads a number of fundamental packages without letting you know, among which is __stats__. Now, `r library(tidyverse)` loads __dplyr__, and __dplyr__ contains the functions `filter()` and `lag()`, which are also functions in __stats__! Therefore, R decides to replace the functions in __stats__ by the functions __dplyr__. Why not the other way around? Because we've loaded __dplyr__ after __stats__. 
+
+In general, conflicts can be seen using the following command:
+
+```{r eval = FALSE}
+conflicts()
+```
+
+We can also install several packages at the same time. In order to do so, we have to __concatenate__ the names of various packages to the argument of `install.packages`:
+
+```{r eval = FALSE}
+install.packages(c("stargazer", "lubridate"))
+```
 
 
 ## Basic R syntax: Base R
 
+Now, let us try to acquaint ourselves with the basic syntax of R. R contains several example dataset with which we can practise. For example, here is Iris:
+
+```{r}
+iris
+```
+
+Once we run this chunk, R shows us a dataset. In order to work efficiently, we often "save" the dataset, so we can execute functions on it:
+
+```{r}
+mydata <- iris
+```
+
+Now, in the Environment part of Rstudio, you should see something like this:
+
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/lecture1_4.png)
+
+Try to click on it, and see what happens! We can a miniature Excel sheet with the help of which we can inspect our data. Editing our data, however, is something we do by using code. 
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/lecture1_5.png)
+
+We have already seen that we can view the data by using the built-in data viewer, and we can also view the data by simply typing `iris` or, after we've stored `iris` in `mydata`, `mydata` in the console. What if we want to see only the first 10 observations?
+
+```{r}
+head(mydata, 10)
+```
+
+
+```{r}
+mydata[1:10,]
+```
+
+Both of these commands do exactly the same! If you have a data frame, we can select rows n to m __rows__ by using `data[n:m,]` and columns p to q by using `data[,p:q]`:
+
+```{r}
+mydata[,2:4]
+```
+
+But what if we can to select only column 1 and 5, for example?
+
+```{r}
+mydata[,c(1,5)]
+```
+
+In that case, we have to concatenate both numbers. We can also uses the variable names to refer to the columns:
+
+```{r}
+mydata[,c("Sepal.Length", "Species")]
+```
+
+As before, we can also "save" this part of the data and store it:
+
+```{r}
+mypart <- mydata[,c(1,5)]
+```
+
+We can also select data in other ways: suppose we only want to select the rows of the data for which the species is equal to `versicolor`:
+
+```{r}
+mypart[mypart$Species == "versicolor",]
+```
+
+That is a really long output! We can also "stack" commands in the following way:
+
+```{r}
+head(mypart[mypart$Species == "versicolor",])
+
+tail(mypart[mypart$Species == "versicolor",])
+```
+
+Let us decompose the code: we instruct R to select the dataset `mypart`, then condition the observations on the rows (as indicated by the final comma) of `mypart$Species` to be equal to "versicolor". 
+
+Simultaneously, we learned that we can select variables in a shorthand way using the `$` operator:
+
+```{r}
+mypart$Species
+```
+
 ## Object classes
+
+Remember we've just saved two objects (if you don't remember, look at the upper left of your Rstudio window): mydata, and mypart. 
+
+```{r}
+class(mydata)
+```
+
+My data is a so-called data.frame. A data frame is a little bit like an excel sheet: it is an all-encompassing object class that can contain within itself objects of other classes. What are objects of other classes?
+
+```{r}
+numbers <- 1:10
+
+class(numbers)
+```
+
+```{r}
+numbers2 <- seq(from = -3, to = 6, by = 0.02)
+
+class(numbers)
+```
+
+```{r}
+words <- c("Hello", "I", "am", "Bas")
+
+class(words)
+```
+
+```{r}
+class("Netherlands")
+
+class(c(1, "test"))
+
+a <- 1:4
+class(a)
+
+class(a) <- "character"
+class(a)
+
+#Factors
+factor(1:3)
+b <- factor(c(1, 2, 1, 2, 1, 2))
+
+b
+
+class(b)
+levels(b)
+
+
+#Logicals
+x <- 1
+y <- 3
+
+x == 2
+x == 1
+
+x <= 4
+x > 5
+
+x + y == 4
+x / y == 0.33
+
+x / y == 1/3
+
+mydata$Species == "versicolor"
+```
+
+Why are classes important? Because functions only work on objects of certain classes!
 
 ## Functions
 
+Let us try to use some functions to understand what they are! Suppose we want to calculate the mean of `numbers2`, which we just created? How do we do that? Type `?mean` in the console, and hit enter. 
+
+Now, the help tab will open and will give us a small description of what arguments mean needs: we only need 'an R object', but "there are methods for numeric/logical vectors and date, date-time and time interval objects." What does this mean?
+
+```{r}
+mean(numbers2)
+
+sum(numbers2)
+
+plot(numbers2)
+
+plot(numbers2^2)
+```
+
+but: 
+
+```{r}
+mean(words)
+```
+
 ## Data frames and tibbles
+
+Let us now return to the practicalities and concern ourselves with dataframes. Most likely, your data will be a dataframe, because it contains variables from different classes. 
+
+### Data frames
+
+A data frame is a table or a two-dimensional array-like structure in which each column contains values of one variable and each row contains one set of values from each column.
+
+Following are the characteristics of a data frame.
+
+   - The column names should be non-empty.
+   - The row names should be unique.
+   - The data stored in a data frame can be of numeric, factor or character type.
+   - Each column should contain the same number of data items.
+
+A quick look at a dataframe:
+
+```{r}
+class(mydata)
+
+str(mydata)
+```
+
+It is very easy to add variables to a data frame using various functions. Let us use the `mutate` function from the __dplyr__ package, and see how we can do this:
+
+```{r}
+mutate(mydata, Sepal.Surface = Sepal.Length * Sepal.Width)
+```
+
+In words, we have told R: take the dataframe which I've stored under `mydata`, and mutate (change) it by adding a new variable, Sepal.Surface, which is the product of length and width. However, what I didn't do is store this new dataframe somewhere. `mydata`, therefore, does not contain this newly defined variable. I can choose to either overwrite `mydata`, or create a new dataframe that contains the new variable:
+
+```{r}
+mydata2 <- mutate(mydata, Sepal.Surface = Sepal.Length * Sepal.Width)
+
+
+head(mydata2, 10)
+```
+
+Let us now look at a particularly useful function from __dplyr__, `group_by`: 
+
+```{r}
+groupeddata<- group_by(mydata2, Species)
+
+is.grouped_df(groupeddata)
+
+summarise(groupeddata, mean = mean(Sepal.Surface))
+```
 
 ### Tibbles
 
@@ -55,7 +360,7 @@ library(tibble)
 tibble(x = 1:5, y = x^2)
 ```
 
-#### Tibbles vs data frames
+### Tibbles vs data frames
 
 There are three key differences between tibbles and data frames: printing, subsetting, and recycling rules.
 
@@ -70,4 +375,51 @@ There are three key differences between tibbles and data frames: printing, subse
 tibble(a = 1, b = 1:3)
 
 tibble(a = 1:3, c = 1:2)
+```
+
+
+## The %>% Operator
+
+From the datacamp website: 
+
+> R is a functional language, which means that your code often contains a lot of parenthesis, ( and ). When you have complex code, this often will mean that you will have to nest those parentheses together. This makes your R code hard to read and understand. Here's where %>% comes in to the rescue!
+
+What does this mean? 
+
+> You can use the %>% operator with standard R functions — and even your own functions — too. The rules are simple: the object on the left hand side is passed as the first argument to the function on the right hand side. So: 
+
+```{r eval = FALSE}
+my.data %>% 
+    my.function 
+
+#is the same as 
+my.function(my.data)
+
+#and 
+my.data %>% 
+  my.function(arg=value) 
+
+#is the same as 
+my.function(my.data, arg=value)
+```
+
+Let us now try to do the same thing as before: get the mean of `Sepal.Surface` from `mydata2`, this time using the pipeing operator: 
+
+```{r}
+mydata2 %>%
+  group_by(Species) %>%
+  summarise(mean = mean(Sepal.Surface))
+```
+
+To finish this lecture, let us create a fully-fledged descriptive statistics table manually. Don't worry: we don't have to do this, there are hundreds of packages which implement this kind of table with one function call:
+
+```{r}
+mydata2 %>%
+  group_by(Species) %>%
+  summarise(mean = mean(Sepal.Surface), 
+            sd = sd(Sepal.Surface), 
+            median = median(Sepal.Surface), 
+            min = min(Sepal.Surface), 
+            max = max(Sepal.Surface), 
+            n = n())
 ```

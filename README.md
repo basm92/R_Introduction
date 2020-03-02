@@ -43,7 +43,7 @@ The objectives of this course are:
 
 - Lecture 1a: Installing R, RStudio, Basic R Syntax, Object Classes
 
-- Lecture 1b: Tidying Data using the __tidyverse__: `pivot_longer` and `pivot_wider`
+- Lecture 1b: Importing & Tidying Data using the __tidyverse__: `pivot_longer` and `pivot_wider`
 
 - Lecture 1c: String Manipulation using __stringr__, dates using __lubridate__
 
