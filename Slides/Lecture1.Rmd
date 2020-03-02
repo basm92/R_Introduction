@@ -1,0 +1,73 @@
+---
+title: "Lecture 1a"
+author: "Bas Machielsen"
+date: "3/2/2020"
+output: html_document
+---
+
+## Introduction
+
+This lecture covers three aspects: installing R and Rstudio, familiarizing ourselves with basic R syntax, learn about functions, objects, and object classes. 
+
+## Installing R and Rstudio
+
+### Windows
+
+- Download the most recent version of R from https://cran.rstudio.com/ 
+
+- Go to https://rstudio.com/products/rstudio/download/#download 
+
+- Select the appropriate installer (for Windows: .exe)
+
+![]
+
+### Mac
+
+### UNIX
+
+
+## Basic R syntax: Base R
+
+## Object classes
+
+## Functions
+
+## Data frames and tibbles
+
+### Tibbles
+
+Tibbles are a useful way of showing your data if you are in a hurry, if you want to check your programming, and you just want to have a brief look in the console to find out what the data looks like.
+
+(All of this section is almost verbatim from the __tibble__ vignette:)
+
+Tibbles are a modern take on data frames. They keep the features that have stood the test of time, and drop the features that used to be convenient but are now frustrating (i.e. converting character vectors to factors).
+
+- It never changes an input’s type (i.e., no more stringsAsFactors = FALSE!).
+
+- It never adjusts the names of variables
+
+- It evaluates its arguments lazily and sequentially
+
+```{r}
+library(tibble)
+
+# First I define x, and then I use that definition of x to generate y
+tibble(x = 1:5, y = x^2)
+```
+
+#### Tibbles vs data frames
+
+There are three key differences between tibbles and data frames: printing, subsetting, and recycling rules.
+
+- When you print a tibble, it only shows the first ten rows and all the columns that fit on one screen. 
+
+- Tibbles are quite strict about subsetting (not important for now)
+
+- When constructing a tibble, only values of length 1 are recycled. The first column with length different to one determines the number of rows in the tibble, conflicts lead to an error. 
+
+
+```{r}
+tibble(a = 1, b = 1:3)
+
+tibble(a = 1:3, c = 1:2)
+```
