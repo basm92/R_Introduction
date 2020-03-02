@@ -105,7 +105,7 @@ library(tidyverse)
 
 And it will give you some output akin to the following picture:
 
-![](picture3)
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/lecture1_3.png)
 
 This is an overview of the attached packages in the tidyverse, followed by an overview of **Conflicts**. Conflicts happen when two packages use the same functions. R studio automatically loads a number of fundamental packages without letting you know, among which is __stats__. Now, `r library(tidyverse)` loads __dplyr__, and __dplyr__ contains the functions `filter()` and `lag()`, which are also functions in __stats__! Therefore, R decides to replace the functions in __stats__ by the functions __dplyr__. Why not the other way around? Because we've loaded __dplyr__ after __stats__. 
 
@@ -156,19 +156,19 @@ mydata[1:10,]
 
 Both of these commands do exactly the same! If you have a data frame, we can select rows n to m __rows__ by using `data[n:m,]` and columns p to q by using `data[,p:q]`:
 
-```{r}
+```{r eval = FALSE}
 mydata[,2:4]
 ```
 
 But what if we can to select only column 1 and 5, for example?
 
-```{r}
+```{r eval = FALSE}
 mydata[,c(1,5)]
 ```
 
 In that case, we have to concatenate both numbers. We can also uses the variable names to refer to the columns:
 
-```{r}
+```{r eval= FALSE}
 mydata[,c("Sepal.Length", "Species")]
 ```
 
@@ -316,7 +316,7 @@ str(mydata)
 
 It is very easy to add variables to a data frame using various functions. Let us use the `mutate` function from the __dplyr__ package, and see how we can do this:
 
-```{r}
+```{r eval = FALSE}
 mutate(mydata, Sepal.Surface = Sepal.Length * Sepal.Width)
 ```
 
@@ -371,7 +371,7 @@ There are three key differences between tibbles and data frames: printing, subse
 - When constructing a tibble, only values of length 1 are recycled. The first column with length different to one determines the number of rows in the tibble, conflicts lead to an error. 
 
 
-```{r}
+```{r eval = FALSE}
 tibble(a = 1, b = 1:3)
 
 tibble(a = 1:3, c = 1:2)
