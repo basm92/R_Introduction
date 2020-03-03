@@ -47,7 +47,7 @@ The objectives of this course are:
 
 - Lecture 1c: String Manipulation using __stringr__, dates using __lubridate__
 
-- Lecture 1d: The apply-functions family using __purr__
+- Lecture 1d: Functions and the apply-functions family using __purrr__
 
 - Lecture 2a: __ggplot2__: the basics
 
@@ -99,6 +99,6 @@ Many packages in R have so-called cheat sheets available. As it takes a lot of t
 
 ## Developments & questions
 
-I plan to extend this course to cover various more advanced aspects of R, most importantly, web scraping (both client-side, and by using API's) and using time series analyses. 
+I plan to extend this course to cover various more advanced aspects of R, most importantly, string-matching to match data from various sources, and web scraping (both client-side, and by using API's) and time series and panel analyses using various estimators. 
 
 Please mail any questions and suggestions to a.h.machielsen@uu.nl! 

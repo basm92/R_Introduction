@@ -7,11 +7,12 @@ output: html_document
 
 ```{r setup, include = FALSE, warning = FALSE}
 library(plyr)
+library(tibble)
 ```
 
 # Introduction
 
-In this lecture, we will occupy ourselves with (i) importing data from a variety of sources, and (ii) tidying the data to make sure the data is 'tidy', that is to say, in a format suitable for statistical and graphical analysis. While importing and tidying data, we will come across various challenges, which I attempt to address. 
+In this lecture, we will occupy ourselves with (i) importing data from a variety of sources, and (ii) tidying the data to make sure the data is 'tidy', that is to say, in a format suitable for statistical and graphical analysis, and (iii) manipulating data with dplyr. While importing and tidying data, we will come across various challenges, which I attempt to address. 
 
 - You can download the .Rmd file from my [**github page**](www.github.com/basm92/R_Introduction), and follow along!
 
@@ -43,7 +44,7 @@ and we can read it using the `read.csv` command:
 ```{r}
 mydata <- read.csv(url)
 
-head(mydata, 10)
+tibble(mydata)
 ```
 
 In an appendix to our paper, we might want to indicate when we've downloaded something, for example, by including the following chunk:
@@ -69,7 +70,7 @@ These data need a lot of cleaning, but let us first inspect the data a little bi
 ```{r}
 str(mydata)
 
-tail(mydata, 10)
+tibble(tail(mydata, 10))
 ```
 
 The last couple of lines contain metadata, so we might want to erase them. How do we do that? We can use R's base syntax again, by selecting the number of rows 1 to 1100. Alternatively, we can also use a negative sign to indicate we select everything BUT rows 1101:1105:
@@ -78,14 +79,125 @@ The last couple of lines contain metadata, so we might want to erase them. How d
 mydata <- mydata[-(1101:1105),]
 ```
 
-# Importing data - .xlsx and .xls
+## Importing data - .xlsx and .xls
 
-# Importing data - JSON
+The `readxl` package does not only feature functions to specifically deal with csv files, but also with .xls and .xlsx files. Although not the standard anymore, most of these files are still frequently used and can be found anywhere. We use either `read_xls` or `read_xlsx` to read in the file. 
 
-# Importing data - SQL
+```{r}
+read_xlsx("../DataFiles/sample_excel_file.xlsx") #Try to specify the full path to the file
 
-# Importing data - anything else
+```
 
+**Exercise**: Try to download the file from [my Github page](https://github.com/basm92/R_Introduction/blob/master/DataFiles/sample_excel_file.xlsx), and load it into R from there. 
+
+Both `read_xlsx` and `read_xls` have a number of arguments with default options. Usually, the default options are fine, but sometimes you might want to fine-tune the importing process. 
+
+```{r}
+?read_xlsx
+```
+
+gives us the following information..
+
+- sheet: you can specify the sheet number here, in case you have an Excel file with multiple sheets. In general, it is not recommended to use sheets, but to you a separate file for all data which you have. They can be merged very easily in R, as we will learn later. 
+
+- range: you can specify a range of rows which you want to import. 
+
+- col_names: You can specify whether you want to import specific column names or not.
+
+- col_types: This one might be quite important, especially given the limitations of Excel to recognize your data for what it is: you might want to specify the types of variable for each column: character, factor, numeric, et cetera. You can specify one argument for each column. If you specify one argument, it will be recycled, meaning it will repeat itself over all columns. A small example of how this works:
+
+```{r}
+read_xlsx("../DataFiles/sample_excel_file.xlsx", col_types = c("text", "numeric", "numeric"))
+```
+
+- skip: you can skip a numbe rof rows before reading anything. 
+
+There are a couple of other arguments which might be worthwhile to specify in certain situations. 
+
+## Importing data - JSON
+
+JSON [JavaScript Object Notation] is a format that is gaining more and more visibility, as various API's resort to it, partly because it is very easy to use and partly because it takes up very little space. For example, the [Dutch government](https://data.overheid.nl) stores a lot of data in JSON format. I tend to use the package `jsonlite` to import such data. 
+
+Let's take [this](https://data.overheid.nl/dataset/55983-huishoudelijk-afval-per-gemeente-per-inwoner--2001-2014) example data set, about the volume of garbage per municipality per inhabitant from 2001-2014. If we scroll down, we can see 'Downloadable files', and click `Download bestand` on the right.
+
+Then, we will see an interface menu that looks something like this:
+
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/picture_1b_1.png)
+
+In principle, all of these URL's contain useful information, but most of them concern metadata, as you might have suspected about `TableInfos`, `DataProperties`, etc. Let's try to use `jsonlite` to read some of those, and also, let's read `TypedDataSet` and `UntypedDataSet`. 
+
+```{r}
+library(jsonlite)
+
+garbage <- read_json("https://opendata.cbs.nl/ODataApi/OData/80563ned/TableInfos", simplifyVector = TRUE)
+```
+
+We used the argument `simplifyVector = TRUE`,  which is a very important argument, which allows us to put the second part of the data in a data frame immediately. You might want to verify by omitting the argument and see what you get. 
+
+In any case, we have now obtained a list, yet another object in R. A list is an object that can hold in itself objects of different classes. In this case, if you click list, you can verify that it holds a character, containing the URL we've just read, and a data.frame, which contains some metadata.  If we want to directly access an element in a list, we have to use double brackets [[]] to do so: 
+
+```{r}
+garbage <- garbage[[2]]
+
+str(garbage)
+```
+
+As we can see, this is some metadata. Let us try to extract the actual data, which is contained in both `UntypedDataSet` and `TypedDataSet`. 
+
+```{r}
+garbagedata <- read_json("https://opendata.cbs.nl/ODataApi/OData/80563ned/TypedDataSet", simplifyVector = TRUE)
+```
+
+Now, let us overwrite `garbagedata` with just the dataframe, which contains the relevant dataset. 
+
+```{r}
+garbagedata <- garbagedata$value
+
+tibble(garbagedata)
+```
+
+There is just once thing which we would like to do: the variable `Regio` contains a code for each municipality. Let us try to extract the supplementary dataset from the API to try to match the codes with actual municipality names.
+
+```{r}
+library(magrittr)
+regionnames <- read_json("https://opendata.cbs.nl/ODataApi/OData/80563ned/RegioS",
+                         simplifyVector = TRUE) %>%
+  extract2(2)
+```
+
+Let us attempt to merge the two datasets and see what we get:
+
+```{r}
+mergeddata <- merge(
+  garbagedata, regionnames, 
+  by.x = "RegioS",
+  by.y = "Key")
+
+#Let us look at the first 10 rows, and columns 1, 4, 5, and 36. 
+mergeddata[1:10, c(1,4,5, 36)]
+```
+
+
+## Importing data - anything else
+
+For any other data you might come across, there are the very general functions `read_table`.and `read_fwf`. Both are very flexible and can read almost any format of data, including some of the ones specified before, but they do not have many default function arguments, so you have to specify many options before it reads the data properly. 
+
+For those of you that have Stata, SPSS or SAS data, there is the package **foreign**. You can use the following syntax to install the package and load your Stata, SPSS and SAS files to R.
+
+```{r eval = FALSE}
+require(foreign)
+
+spssdata <- read.spss("C:/Dir/spssfile.sav")
+statadata <- read.dta("C:/Dir/statafile.dta")
+asdata <- read.xport("C:/Dir/sasfile.xpt")
+
+```
+
+**Exercise**: Try to import one of your own data files in R. 
+
+Now that we've managed to properly import our data, it is time to clean and tidy it. 
+
+# Part 2: Tidy data
 
 ## What is tidy data?
 
@@ -97,7 +209,161 @@ In order for your data to be ready for analysis, it needs to be **tidy**.
 
 I will attempt to explain how to put this principle in practice using a set of packages called the **tidyverse**, but strictly speaking, only the `dplyr` and the `tidyr` packages are required. 
 
-### Dplyr
+Even more specifically, we will often find ourselves using the Tidyr package, and two functions, `pivot_longer` and `pivot_wider`. In past versions of Tidyr, functions such as `melt`, `spread`, `gather` and `recast` are used. When googling and coming across relevant help on StackOverflow, for example, you will often find references to these commands. Apart from very specific technical tasks, however, it is better to use pivot_longer and pivot_wider now: they are very general, and can be used within almost any context, provided the arguments are specified correctly. 
+
+**Exercise**: Is `mergeddata` tidy?
+
+```{r}
+tibble(mergeddata)
+```
+
+## Tidyr
+
+- Although tidy data shares the properties mentioned in previously , untidy data refers (broadly speaking) to unstructured data. 
+
+- An example (from [www.tidyverse.org](www.tidyverse.org)):
+
+```{r}
+preg <- read.csv("https://raw.githubusercontent.com/tidyverse/tidyr/master/vignettes/preg.csv")
+
+tibble(preg)
+```
+
+- Is each obervation in a row?
+
+- Is each variable in a column?
+
+- What are the variables here? 
+
+```{r}
+preg2 <- read.csv("https://raw.githubusercontent.com/tidyverse/tidyr/master/vignettes/preg2.csv")
+
+tibble(preg2)
+```
+
+
+The variables in this dataset are (i) the treatment, (ii) the subject, and (iii) the 'score' corresponding to each subject-treatment observations. Let's see what we can do to transform the data from untidy to tidy data. 
+
+```{r message = FALSE, warning = FALSE}
+library(dplyr)
+library(tidyr)
+
+tibble(preg)
+
+preg %>%
+    pivot_longer(treatmenta:treatmentb, 
+                 names_to = "treatment", 
+                 values_to = "score")
+
+```
+
+The key command in the former chunk of code is `pivot_longer`, with the arguements data, columns, names_to and values_to. Why is pivot_longer called pivot_longer? Because it increases the number of rows.
+
+It takes **columns** , as specified in the first argument, and rearranges them in rows according to each subject. Instead of using column names, you can also use numbers. Then, `names_to` gives a name to the column now containing variables, and values_to gives a name to the column containing the corresponding values. 
+
+Let's us try to give some more examples (from https://tidyr.tidyverse.org/reference/pivot_longer.html):
+
+Here is a dataset called `relig_income`:
+
+```{r}
+tibble(relig_income)
+```
+
+This data are untidy. There are three variables, Religion, income and count (frequency). Let us try to rearrange the data using `pivot_longer`:
+
+```{r}
+relig_income %>%
+  pivot_longer(2:11, 
+               names_to = "income", 
+               values_to = "count") %>%
+  tibble()
+```
+
+
+This is one of the most simple cases in which we can use `pivot_longer` to 
+
+Here is another dataset on music charts: billboard.
+
+```{r}
+tibble(billboard)
+```
+
+This data contains various variables, artist, track, date entered, week, and position. Week, however, is not arranged according to the tidy data principle. Let us try to use pivot_longer to tidy this dataset:
+
+```{r}
+billboard %>%
+  pivot_longer(cols = starts_with("wk"),
+               names_to = "week",
+               values_to = "position",
+               values_drop_na = TRUE) %>%
+  tibble()
+  
+```
+
+Notice that we used the argument `values_drop_na` to specify that NA observations could be dropped. Remove the argument from the command, and see what the dataset looks like if you don't specify it. 
+
+Now, let's use the other command that we will use frequently, often in conjunction with `pivot_longer`: `pivot_wider`. 
+
+From the tidyverse website: 
+
+> pivot_wider() "widens" data, increasing the number of columns and decreasing the number of rows.
+
+Let us see how that works by introducing a small example from US rent incomes:
+
+```{r}
+us_rent_income
+
+us_rent_income %>%
+  pivot_wider(names_from = variable, 
+              values_from = c("estimate", "moe"))
+```
+Pivot_wider usually only takes two arguments:
+
+- names_from: A pair of arguments describing which column (or columns) to get the name of the output column 
+- values_from: which column (or columns) to get the cell values from 
+
+Let us provide another example, `mydata`, which we have loaded before:
+
+```{r}
+tibble(mydata)
+
+mydata %>%
+  pivot_longer(starts_with("X"),
+               names_to = "years",
+               values_to = "value")
+
+
+mydata %>%
+  pivot_longer(starts_with("X"),
+               names_to = "year",
+               values_to = "value") %>%
+  pivot_wider(names_from = "Series.Code",
+              values_from = "value") %>%
+  tibble()
+```
+
+In this chunk, we have first expanded the data by putting `years` back into a column, and put the corresponding values of that variable into a column called `value`. Afterwards, we used the piping operator %>% to expand the dataset by putting all names from Series_code into new columns, and we took the corresponding value from the value column which we've just created. I guarentee that 95% of the data transformation operations that you need to do can be done using either pivot_longer, pivot_wider, or a combination of those two! 
+
+## Summarizing..
+
+In general, when you import a dataset, ask yourself: 
+
+- Which are the variables? 
+
+- Which of the variables are already in place?
+
+- Which of the non-variables are in place of variables? 
+
+- Which of the variables are in the place of non-variables? 
+
+Oftentimes, the latter two objects are the object of data transformation: the non-variables need `pivot_longer`, and the variables in the place of non-variables need `pivot_wider`. 
+
+
+# Part 3: Manipulation with Dplyr
+
+Now that we've loaded our files into R, and we have tidied our data, let's learn to work with one of the most often-used packages for data manipulation and treatment, **dplyr**. 
+
+# Learn to manipulate data with Dplyr
 
 From the [Dplyr vignette](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html):
 
@@ -125,7 +391,7 @@ install.packages(dplyr)
 library(dplyr)
 ```
 
-#### Select and filter the data
+### Select and filter the data
 
 Let's take a standard dataset from `dplyr`, about characteristics of Star Wars characters. 
 
@@ -158,7 +424,7 @@ I take the dataset data, then I introduce a new variable, gender, by which I rep
 
 I make use of the __filter__ function by excluding the NA observations. I use the function `is.na` to determine whether a particular observation is an NA, and then chose to retain it if it is NOT an NA, which in R syntax involves putting an exclamation mark before the command (analogous to a negation in logic). 
 
-#### Cut a numeric variable in various categories
+### Cut a numeric variable in various categories
 
 Let's take the dataset `mtcars` for this exercise, a standard R dataset which contains data about several cars. 
 
@@ -209,10 +475,3 @@ mapvalues(a,
 **Exercise**: Try to augment the dataset `mydata` with this new categorical variable! 
 
 We have managed to create five categories along the entire range of mpg. Alternatively, you could have explicitly specified the bounds of each category. Also, in the `Hmisc` package, you can also find the function **cut2**, in which you can define the categories 'endogenously', that is to say, you can enter a minimum amount of observations per category, and an amount of categories you desire to let the function decide which should be the bounds of the categorical variable. 
-
-
-### Tidyr
-
-Tidyr with `pivot_longer` and `pivot_wider`. 
-
-
