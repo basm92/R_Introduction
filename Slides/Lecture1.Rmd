@@ -2,7 +2,12 @@
 title: "Lecture 1a: Installing, R Fundamentals"
 author: "Bas Machielsen"
 date: "3/2/2020"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
 ---
 
 ## Introduction
@@ -44,7 +49,7 @@ This lecture covers three aspects: installing R and Rstudio, familiarizing ourse
 
 - Select the appropriate installer (for Ubuntu/Debian: .deb), and an install wizard will guide you through the rest of the process. 
 
-## Getting started: specifying a working directory and installing our first packages
+## Getting Started
 
 ### Setting our working directory
 
@@ -93,7 +98,7 @@ Let us now attempt to install our first packages. Packages contain functions tha
 
 Let's install the __tidyverse__! In fact, tidyverse is not so much a package as it is a **set** of packages facilitating data treatment. Try and run the following code chunk:
 
-```{r}
+```{r eval = FALSE}
 install.packages('tidyverse')
 ```
 
@@ -127,7 +132,7 @@ install.packages(c("stargazer", "lubridate"))
 Now, let us try to acquaint ourselves with the basic syntax of R. R contains several example dataset with which we can practise. For example, here is Iris:
 
 ```{r}
-iris
+tibble(iris)
 ```
 
 Once we run this chunk, R shows us a dataset. In order to work efficiently, we often "save" the dataset, so we can execute functions on it:

@@ -2,7 +2,12 @@
 title: 'Lecture 1b: Importing and Tidying Data'
 author: "Bas Machielsen"
 date: "3/2/2020"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
 ---
 
 ```{r setup, include = FALSE, warning = FALSE}
@@ -363,7 +368,7 @@ Oftentimes, the latter two objects are the object of data transformation: the no
 
 Now that we've loaded our files into R, and we have tidied our data, let's learn to work with one of the most often-used packages for data manipulation and treatment, **dplyr**. 
 
-# Learn to manipulate data with Dplyr
+## Learn to manipulate data with Dplyr
 
 From the [Dplyr vignette](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html):
 

@@ -45,7 +45,7 @@ The objectives of this course are:
 
 - Lecture 1b: Importing & Tidying Data using the __tidyverse__: `pivot_longer` and `pivot_wider`
 
-- Lecture 1c: String Manipulation using __stringr__, dates using __lubridate__
+- Lecture 1c: String Manipulation using __stringr__, dates using __lubridate__, and the **swirl** package for practicing. 
 
 - Lecture 1d: Functions and the apply-functions family using __purrr__
 
