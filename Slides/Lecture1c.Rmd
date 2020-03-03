@@ -110,7 +110,7 @@ install.packages('swirl')
 
 And get started by registering, and installing a course. [Here](https://github.com/swirldev/swirl_courses) is a page of courses you can install. I recommmend you start with **R Programming**. 
 
-```{r message = FALSE}
+```{r eval = FALSE}
 library(swirl)
 
 install_course("R Programming")
@@ -120,8 +120,7 @@ Then, you can start the application by typing `swirl()` in the console. Everythi
 
 Why don't we start with 1, basic building blocks! If all is well, your console now should look something like this:
 
-!()[picture1c.png]
-
+![](https://raw.githubusercontent.com/basm92/R_Introduction/master/Miscellaneous/picture1c_1.png)
 Press enter (in the console) to continue. You can do this tutorial together with me. If you're done or you want to stop, you can press ESC. 
 
 
